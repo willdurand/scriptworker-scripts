@@ -1399,6 +1399,8 @@ async def sign_authenticode_zip(context, orig_path, fmt, *, authenticode_comment
 
 async def sign_debian_pkg(*args, **kwargs):
     """
+    Sign a debian package using autograph's debsign support.
+
     Unpack the tarball sign the .dsc .buildinfo .changes files for bionic, focal, impish, and jammy.
     Then, using the autograph /sign/files end point (+ a signer/keyid in debsign mode
     https://github.com/mozilla-services/autograph/blob/main/autograph.yaml#L827)
