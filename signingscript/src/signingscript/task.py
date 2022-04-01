@@ -23,6 +23,7 @@ from signingscript.sign import (
     sign_macapp,
     sign_mar384_with_autograph_hash,
     sign_omnija,
+    sign_debian_pkg,
     sign_widevine,
     sign_xpi,
 )
@@ -42,6 +43,7 @@ FORMAT_TO_SIGNING_FUNCTION = immutabledict(
         "focus-jar": sign_jar,
         "macapp": sign_macapp,
         "widevine": sign_widevine,
+        "autograph_debsign": sign_debian_pkg,
         "autograph_widevine": sign_widevine,
         "autograph_omnija": sign_omnija,
         "autograph_langpack": sign_xpi,
