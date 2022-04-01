@@ -16,6 +16,7 @@ from scriptworker.utils import get_single_item_from_sequence
 
 from signingscript.sign import (
     sign_authenticode_zip,
+    sign_debian_pkg,
     sign_file,
     sign_gpg,
     sign_gpg_with_autograph,
@@ -23,7 +24,6 @@ from signingscript.sign import (
     sign_macapp,
     sign_mar384_with_autograph_hash,
     sign_omnija,
-    sign_debian_pkg,
     sign_widevine,
     sign_xpi,
 )
