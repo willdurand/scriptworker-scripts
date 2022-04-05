@@ -1397,7 +1397,7 @@ async def sign_authenticode_zip(context, orig_path, fmt, *, authenticode_comment
     return orig_path
 
 
-async def sign_debian_pkg(*args, **kwargs):
+async def sign_debian_pkg(context, orig_path, fmt, **kwargs):
     """
     Sign a debian package using autograph's debsign support.
 
@@ -1406,4 +1406,4 @@ async def sign_debian_pkg(*args, **kwargs):
     https://github.com/mozilla-services/autograph/blob/main/autograph.yaml#L827)
     re-compress the tarball, upload the new tarball with the sign files as an artifact.
     """
-    pass
+    return orig_path
