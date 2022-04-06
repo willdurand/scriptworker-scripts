@@ -18,6 +18,7 @@ import tarfile
 import tempfile
 import time
 import zipfile
+from contextlib import ExitStack
 from functools import wraps
 from io import BytesIO
 
@@ -1397,13 +1398,60 @@ async def sign_authenticode_zip(context, orig_path, fmt, *, authenticode_comment
     return orig_path
 
 
-async def sign_debian_pkg(context, orig_path, fmt, **kwargs):
+@time_function
+def make_files_signing_req(input_files, keyid=None):
+    """Make a signing request to pass to the /sign/files endpoint in autograph."""
+    sign_req = [{"files": [], "keyid": keyid, "options": None}]
+    with ExitStack() as stack:
+        files = [stack.enter_context(open(input_file, "rb")) for input_file in input_files]
+        for f in files:
+            sign_req[0]["files"].append(
+                {
+                    "content": b64encode(f.read()),
+                    "name": f.name,
+                }
+            )
+    return sign_req
+
+
+@time_async_function
+async def sign_files_with_autograph(session, server, input_files, keyid=None):
+    keyid = keyid or server.key_id
+    sign_req = make_files_signing_req(input_files, keyid)
+    url = f"{server.url}/sign/files"
+    sign_resp = await retry_async(
+        call_autograph, args=(session, url, server.client_id, server.access_key, sign_req), attempts=3, sleeptime_kwargs={"delay_factor": 2.0}
+    )
+    return sign_resp[0]["signed_files"]
+
+
+async def sign_debian_pkg(context, path, fmt, *args, **kwargs):
     """
     Sign a debian package using autograph's debsign support.
 
     Unpack the tarball sign the .dsc .buildinfo .changes files for bionic, focal, impish, and jammy.
-    Then, using the autograph /sign/files end point (+ a signer/keyid in debsign mode
+    Then, using the autograph /sign/files end point + a signer/keyid in debsign mode
     https://github.com/mozilla-services/autograph/blob/main/autograph.yaml#L827)
     re-compress the tarball, upload the new tarball with the sign files as an artifact.
     """
-    return orig_path
+    cert_type = task.task_cert_type(context)
+    autograph_config = get_autograph_config(context.autograph_configs, cert_type, [fmt], raise_on_empty=True)
+    cert_type = task.task_cert_type(context)
+    _, compression = os.path.splitext(path)
+    # Find *.dsc *.buildinfo *.changes. These are the files in the debian package we need to sign.
+    extensions = (".dsc", ".buildinfo", ".changes")
+    tmp_dir = os.path.join(context.config["work_dir"], "untarred")
+    all_files = await _extract_tarfile(context, path, compression, tmp_dir=tmp_dir)
+    input_files = [input_file for input_file in all_files if input_file.endswith(extensions)]
+    signed_files = await sign_files_with_autograph(
+        context.session,
+        autograph_config,
+        input_files,
+    )
+    # go from base64 back to bytes before writing the files
+    signed_files = [{"name": signed_file["name"], "content": base64.b64decode(signed_file["content"])} for signed_file in signed_files]
+    for signed_file in signed_files:
+        with open(signed_file["name"], "wb") as fh:
+            fh.write(signed_file["content"])
+    await _create_tarfile(context, path, all_files, compression, tmp_dir=tmp_dir)
+    return path
