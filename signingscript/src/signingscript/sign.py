@@ -1416,6 +1416,7 @@ def make_files_signing_req(input_files, keyid=None):
 
 @time_async_function
 async def sign_files_with_autograph(session, server, input_files, keyid=None):
+    """Sign multiple files with autograph's /sign/files endpoint."""
     keyid = keyid or server.key_id
     sign_req = make_files_signing_req(input_files, keyid)
     url = f"{server.url}/sign/files"
@@ -1431,7 +1432,7 @@ async def sign_debian_pkg(context, path, fmt, *args, **kwargs):
 
     Unpack the tarball sign the .dsc .buildinfo .changes files for bionic, focal, impish, and jammy.
     Then, using the autograph /sign/files end point + a signer/keyid in debsign mode
-    https://github.com/mozilla-services/autograph/blob/main/autograph.yaml#L827)
+    https://github.com/mozilla-services/autograph/blob/main/autograph.yaml#L827
     re-compress the tarball, upload the new tarball with the sign files as an artifact.
     """
     cert_type = task.task_cert_type(context)
