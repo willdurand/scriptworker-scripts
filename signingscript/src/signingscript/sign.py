@@ -2,7 +2,6 @@
 """Signingscript task functions."""
 import asyncio
 import base64
-import codecs
 import difflib
 import fnmatch
 import glob
@@ -869,7 +868,7 @@ async def call_autograph(session, url, user, password, sign_req, skip_encoding=F
     request_body = tempfile.TemporaryFile("w+b")
     if skip_encoding:  # using the /sign/files/ endpoint
         # the make_files_signing_req function bakes a fully formed request
-        json_string = json.dumps(sign_req, ensure_ascii=False).encode('utf8')
+        json_string = json.dumps(sign_req, ensure_ascii=False).encode("utf8")
         request_body.write(json_string)
     else:
         write_signing_req_to_disk(request_body, sign_req)
@@ -1431,7 +1430,7 @@ async def sign_files_with_autograph(session, server, input_files, keyid=None):
         args=(session, url, server.client_id, server.access_key, sign_req),
         kwargs={"skip_encoding": True},
         attempts=3,
-        sleeptime_kwargs={"delay_factor": 2.0}
+        sleeptime_kwargs={"delay_factor": 2.0},
     )
     return sign_resp[0]["signed_files"]
 
