@@ -2,6 +2,7 @@
 """Signingscript task functions."""
 import asyncio
 import base64
+import codecs
 import difflib
 import fnmatch
 import glob
@@ -861,12 +862,17 @@ def get_hawk_header(url, user, password, content_type, content_hash):
 
 
 @time_async_function
-async def call_autograph(session, url, user, password, sign_req):
+async def call_autograph(session, url, user, password, sign_req, skip_encoding=False):
     """Call autograph and return the json response."""
     content_type = "application/json"
 
     request_body = tempfile.TemporaryFile("w+b")
-    write_signing_req_to_disk(request_body, sign_req)
+    if skip_encoding:  # using the /sign/files/ endpoint
+        # the make_files_signing_req function bakes a fully formed request
+        json_string = json.dumps(sign_req, ensure_ascii=False).encode('utf8')
+        request_body.write(json_string)
+    else:
+        write_signing_req_to_disk(request_body, sign_req)
     request_body.seek(0)
 
     content_hash = get_hawk_content_hash(request_body, content_type)
@@ -1421,7 +1427,11 @@ async def sign_files_with_autograph(session, server, input_files, keyid=None):
     sign_req = make_files_signing_req(input_files, keyid)
     url = f"{server.url}/sign/files"
     sign_resp = await retry_async(
-        call_autograph, args=(session, url, server.client_id, server.access_key, sign_req), attempts=3, sleeptime_kwargs={"delay_factor": 2.0}
+        call_autograph,
+        args=(session, url, server.client_id, server.access_key, sign_req),
+        kwargs={"skip_encoding": True},
+        attempts=3,
+        sleeptime_kwargs={"delay_factor": 2.0}
     )
     return sign_resp[0]["signed_files"]
 
