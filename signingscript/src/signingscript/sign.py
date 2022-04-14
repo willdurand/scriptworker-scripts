@@ -868,7 +868,7 @@ async def call_autograph(session, url, user, password, sign_req, skip_encoding=F
     request_body = tempfile.TemporaryFile("w+b")
     if skip_encoding:  # using the /sign/files/ endpoint
         # the make_files_signing_req function bakes a fully formed request
-        json_string = json.dumps(sign_req, ensure_ascii=False).encode("utf8")
+        json_string = json.dumps(sign_req)
         request_body.write(json_string)
     else:
         write_signing_req_to_disk(request_body, sign_req)
