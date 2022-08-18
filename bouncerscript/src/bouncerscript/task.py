@@ -18,11 +18,6 @@ from bouncerscript.constants import (
 log = logging.getLogger(__name__)
 
 
-version_map = {
-    "firefox": FirefoxVersion,
-}
-
-
 def get_task_server(task, script_config):
     """Extract task server scope from scopes"""
     server_scopes = [s for s in task["scopes"] if s.startswith(script_config["taskcluster_scope_prefix"] + "server:")]
@@ -153,17 +148,12 @@ def check_versions_are_successive(current_version, payload_version, product):
             err_msg = "In-tree version {} can't be greater than current bouncer {} by more than 1 digit".format(payload_version, current_version)
             raise ScriptWorkerTaskException(err_msg)
 
-    # XXX: for Firefox central nightlies we need to handle the major number
-    # while for Fennec nightlies on ESR we need to handle minor_number
-    if product == "firefox":
+    try:
         current_bouncer_version = FirefoxVersion.parse(current_version)
         candidate_version = FirefoxVersion.parse(payload_version)
-
-        _successive_sanity(current_bouncer_version.major_number, candidate_version.major_number)
-    else:
-        err_msg = "Unknown product {} in the payload".format(product)
-        raise ScriptWorkerTaskException(err_msg)
-
+    except Exception as e:
+        raise ScriptWorkerTaskException(e)
+    _successive_sanity(current_bouncer_version.major_number, candidate_version.major_number)
     log.info("Versions are successive. All good")
 
 
@@ -203,6 +193,6 @@ async def check_aliases_match(context):
 
 
 def check_version_matches_nightly_regex(version, product):
-    version = version_map[product].parse(version)
+    version = FirefoxVersion.parse(version)
     if not version.is_nightly:
         raise ScriptWorkerTaskException("Version {} is valid but does not match a nightly one".format(version))
