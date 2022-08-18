@@ -136,6 +136,30 @@ _BOUNCER_PATH_REGEXES_PRODUCT_THUNDERBIRD = {
     "thunderbird-nightly-pkg-latest-l10n-ssl": (r"^(/thunderbird/nightly/latest-comm-central-l10n/thunderbird-\d+\.0a1\.:lang\." r"(?:mac\.pkg))$"),
 }
 
+_BOUNCER_PATH_REGEXES_PER_PRODUCT_TESTING = {
+    "testing-nightly-latest": (
+        r"^(/firefox/nightly/latest-mozilla-central-l10n/firefox-\d+\.0a1\.:lang\."
+        r"(?:linux-i686\.tar\.bz2|linux-x86_64\.tar\.bz2|mac\.dmg|win32\.installer\.exe|win64\.installer\.exe|win64-aarch64\.installer\.exe))$"
+    ),
+    "testing-nightly-latest-ssl": (
+        r"^(/firefox/nightly/latest-mozilla-central/firefox-\d+\.0a1\.en-US\."
+        r"(?:linux-i686\.tar\.bz2|linux-x86_64\.tar\.bz2|mac\.dmg|win32\.installer\.exe|win64\.installer\.exe|win64-aarch64\.installer\.exe))$"
+    ),
+    "testing-nightly-latest-l10n": (
+        r"^(/firefox/nightly/latest-mozilla-central-l10n/firefox-\d+\.0a1\.:lang\."
+        r"(?:linux-i686\.tar\.bz2|linux-x86_64\.tar\.bz2|mac\.dmg|win32\.installer\.exe|win64\.installer\.exe|win64-aarch64\.installer\.exe))$"
+    ),
+    "testing-nightly-latest-l10n-ssl": (
+        r"^(/firefox/nightly/latest-mozilla-central-l10n/firefox-\d+\.0a1\.:lang\."
+        r"(?:linux-i686\.tar\.bz2|linux-x86_64\.tar\.bz2|mac\.dmg|win32\.installer\.exe|win64\.installer\.exe|win64-aarch64\.installer\.exe))$"
+    ),
+    "testing-nightly-msi-latest-ssl": (r"^(/firefox/nightly/latest-mozilla-central/firefox-\d+\.0a1\.en-US\." r"(?:win32\.installer\.msi|win64(?:|-aarch64)\.installer\.msi))$"),
+    "testing-nightly-msi-latest-l10n-ssl": (
+        r"^(/firefox/nightly/latest-mozilla-central-l10n/firefox-\d+\.0a1\.:lang\." r"(?:win32\.installer\.msi|win64(?:|-aarch64)\.installer\.msi))$"
+    ),
+    "testing-nightly-pkg-latest-ssl": (r"^(/firefox/nightly/latest-mozilla-central/firefox-\d+\.0a1\.en-US\." r"(?:mac\.pkg))$"),
+    "testing-nightly-pkg-latest-l10n-ssl": (r"^(/firefox/nightly/latest-mozilla-central-l10n/firefox-\d+\.0a1\.:lang\." r"(?:mac\.pkg))$"),
+}
 
 BOUNCER_PATH_REGEXES_PER_PRODUCT = [
     _BOUNCER_PATH_REGEXES_PER_PRODUCT_DEFAULT,
@@ -143,6 +167,7 @@ BOUNCER_PATH_REGEXES_PER_PRODUCT = [
     _BOUNCER_PATH_REGEXES_PER_ALTERNATIVE_PACKAGE_FORMAT_WITH_MSIX,
     _BOUNCER_PATH_REGEXES_PER_PRODUCT_FENNEC,
     _BOUNCER_PATH_REGEXES_PRODUCT_THUNDERBIRD,
+    _BOUNCER_PATH_REGEXES_PER_PRODUCT_TESTING,
 ]
 
 # XXX A list of tuple is used because we care about the order:
